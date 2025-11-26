@@ -3,7 +3,7 @@
  * Provides class-appropriate terms based on the current theme
  */
 
-import { User, Sun, Repeat, Target, Sword, Sparkles, Eye, type LucideIcon } from 'lucide-react';
+import { User, Sun, Repeat, Target, Sword, Sparkles, Eye } from 'lucide-react';
 
 type Theme = 'fighter' | 'wizard' | 'rogue' | 'light' | 'dark' | 'system';
 

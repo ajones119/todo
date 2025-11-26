@@ -63,25 +63,24 @@ export const useCreateGoal = () => {
         return { previousQuests };
       }
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
       
       // If this was from a quest board, invalidate that query too (to ensure consistency)
       if (variables.questBoardTemplateId) {
         queryClient.invalidateQueries({ queryKey: ['quest-board'] });
-        
+      }
 
-        toast.success('Goal created');
-      
-    }},
+      toast.success('Goal created');
+    },
     onError: (error, variables, context) => {
       // Rollback optimistic update if it was from quest board
       if (variables.questBoardTemplateId && context?.previousQuests) {
         queryClient.setQueryData(['quest-board'], context.previousQuests);
       }
       toast.error('Failed to create goal');
-      console.error('Create goal error:', error);
-    },
+      console.error('Create goal error:', error)
+    }
   });
 };
 
@@ -162,7 +161,7 @@ export const useCompleteGoal = () => {
 
       return { previousGoals };
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       // Rollback to previous value on error
       if (context?.previousGoals) {
         queryClient.setQueryData(['goals'], context.previousGoals);

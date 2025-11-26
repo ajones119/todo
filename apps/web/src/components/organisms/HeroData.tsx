@@ -1,5 +1,3 @@
-import { useAuthStore } from '@/store/auth'
-import { User } from 'lucide-react'
 import { UserInfo } from './UserInfo'
 import { WeeklyStats } from './WeeklyStats'
 

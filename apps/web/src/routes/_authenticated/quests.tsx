@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { GoalList } from '@/components/organisms/GoalList'
-import { UserInfo } from '@/components/organisms/UserInfo'
 
 export const Route = createFileRoute('/_authenticated/quests')({
   component: QuestsPage,

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { type FormEvent, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth'
 import { Button as BitButton } from '@/components/ui/8bit/button'

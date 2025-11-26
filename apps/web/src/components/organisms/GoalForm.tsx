@@ -28,6 +28,7 @@ const createEmptyGoal = (): NewGoal => {
     rewarded: false,
     weight: 3,
     completedAt: null,
+    fromTemplate: false,
   }
 }
 

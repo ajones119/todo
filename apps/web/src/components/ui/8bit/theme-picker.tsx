@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Moon, Sun, Monitor, Sword, Sparkles, Eye } from "lucide-react"
-import { Button as BitButton } from "@/components/ui/8bit/button"
 import {
   Select as BitSelect,
   SelectContent as BitSelectContent,

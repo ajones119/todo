@@ -1,4 +1,3 @@
-import React from 'react'
 import { Select as BitSelect } from '@/components/ui/8bit/select'
 import { SelectTrigger as BitSelectTrigger } from '@/components/ui/8bit/select'
 import { SelectValue as BitSelectValue } from '@/components/ui/8bit/select'

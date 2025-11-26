@@ -13,7 +13,7 @@ type AuthState = {
   logout: () => Promise<void>;
 };
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,
   loading: false,
   error: null,
@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       // Set up auth state listener to keep store in sync with Supabase
       // This handles token refresh, logout, etc.
-      supabase.auth.onAuthStateChange((event, session) => {
+      supabase.auth.onAuthStateChange((_event, session) => {
         set({ user: session?.user ?? null });
       });
     } finally {

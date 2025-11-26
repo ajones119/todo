@@ -1,5 +1,4 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
-import { useAuthStore } from '@/store/auth'
 import { Button as BitButton } from '@/components/ui/8bit/button'
 
 export const Route = createFileRoute('/')({
