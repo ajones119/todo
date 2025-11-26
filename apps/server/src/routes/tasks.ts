@@ -130,7 +130,7 @@ export async function tasksRoutes(app: FastifyInstance) {
       if (!parseResult.success) {
         return reply.status(400).send({ 
           error: 'Invalid request body',
-          details: parseResult.error.errors
+          details: parseResult.error.issues
         });
       }
 

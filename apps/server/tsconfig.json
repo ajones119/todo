@@ -2,7 +2,6 @@
   "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,7 +11,7 @@
       "@todo/types": ["../../packages/types/index.ts"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../packages/types/**/*"],
   "exclude": ["node_modules", "dist"]
 }
 

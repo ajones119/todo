@@ -87,7 +87,7 @@ const addGenericQuestsToBoard = createStep({
       }
 
       const result = {
-        output: JSON.stringify({
+        message: JSON.stringify({
           success: true,
           questsAdded: data?.length || 0,
           userCount,
@@ -111,7 +111,7 @@ const addUserCultivatedGoalsToBoard = createStep({
     message: z.string(),
   }),
   outputSchema: z.object({
-    output: z.string()
+    message: z.string()
   }),
   execute: async ({ runtimeContext }) => {
     const supabase = runtimeContext?.get("supabase") as SupabaseClient | undefined;
@@ -135,7 +135,7 @@ const addUserCultivatedGoalsToBoard = createStep({
     })));
 
     return {
-      output: JSON.stringify({
+      message: JSON.stringify({
         success: true,
         results,
       }),

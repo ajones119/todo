@@ -109,7 +109,7 @@ export async function goalsRoutes(app: FastifyInstance) {
       if (!parseResult.success) {
         return reply.status(400).send({
           error: 'Invalid request body',
-          details: parseResult.error.errors
+          details: parseResult.error.issues
         });
       }
 
@@ -225,7 +225,7 @@ export async function goalsRoutes(app: FastifyInstance) {
       if (!parseResult.success) {
         return reply.status(400).send({
           error: 'Invalid request body',
-          details: parseResult.error.errors
+          details: parseResult.error.issues
         });
       }
 
@@ -369,7 +369,7 @@ export async function goalsRoutes(app: FastifyInstance) {
       if (!parseResult.success) {
         return reply.status(400).send({
           error: 'Invalid request body',
-          details: parseResult.error.errors
+          details: parseResult.error.issues
         });
       }
 
