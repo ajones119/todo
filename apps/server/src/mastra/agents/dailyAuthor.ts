@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { getRecentCompletedGoalsForSingleUser } from "../tools/getRecentCompletedGoalsForSingleUser";
-import { addGoalTemplatesForUser } from "../tools/addGoalTemplatesForUser";
+import { getRecentCompletedGoalsForSingleUser } from "../tools/getRecentCompletedGoalsForSingleUser.js";
+import { addGoalTemplatesForUser } from "../tools/addGoalTemplatesForUser.js";
 
 export const dailyAuthorAgent = new Agent({
   name: "daily-author-agent",

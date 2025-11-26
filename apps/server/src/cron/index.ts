@@ -1,6 +1,6 @@
 import fastifyCron from 'fastify-cron';
 import type { FastifyInstance } from 'fastify';
-import { mastra } from 'src/mastra/index.js';
+import { mastra } from '../mastra/index.js';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 
 // Daily at midnight UTC (cron format: 0 0 * * *)

@@ -68,6 +68,9 @@ importers:
       rrule:
         specifier: ^2.8.1
         version: 2.8.1
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -75,9 +78,6 @@ importers:
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
