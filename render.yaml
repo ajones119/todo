@@ -5,7 +5,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd apps/server && pnpm install && pnpm build
+    buildCommand: pnpm install && pnpm --filter @todo/types build && pnpm --filter server build
     startCommand: cd apps/server && pnpm start
     healthCheckPath: /ping
     envVars:
@@ -25,7 +25,7 @@ services:
     env: static
     region: oregon
     plan: free
-    buildCommand: cd apps/web && pnpm install && pnpm build
+    buildCommand: pnpm install && pnpm --filter web build
     staticPublishPath: apps/web/dist
     # Set these in Render Dashboard:
     # - VITE_SUPABASE_URL
