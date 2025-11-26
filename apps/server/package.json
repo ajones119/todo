@@ -1,0 +1,38 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.2",
+  "dependencies": {
+    "@ai-sdk/openai": "^1.3.24",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/static": "^8.3.0",
+    "@mastra/core": "^0.24.5",
+    "@mastra/libsql": "^0.16.2",
+    "@supabase/supabase-js": "^2.81.1",
+    "@todo/types": "workspace:*",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
+    "fastify-cron": "^1.4.0",
+    "fastify-helmet": "^7.1.0",
+    "fastify-zod": "^1.4.0",
+    "jose": "^6.1.2",
+    "mastra": "^0.18.5",
+    "rrule": "^2.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

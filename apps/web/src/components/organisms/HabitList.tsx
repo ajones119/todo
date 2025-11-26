@@ -1,0 +1,382 @@
+import { useState, useEffect } from 'react';
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
+import { useHabits, useIncrementHabit, useDeleteHabit } from '@/api/habits';
+import { Button as BitButton } from '@/components/ui/8bit/button';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/8bit/drawer';
+import { ScrollArea } from '@/components/ui/8bit/scroll-area';
+import { Spinner } from '@/components/ui/8bit/spinner';
+import { HabitForm, type Habit } from './HabitForm';
+import { Plus, Minus, Trash2, Edit, Sun } from 'lucide-react';
+import { toast } from 'sonner';
+import { useThemeLabels } from '@/hooks/useThemeLabels';
+import { getSingularLabel } from '@/lib/theme-labels';
+import { getIconForCategory } from '@/lib/category-stats';
+
+type HabitResponse = Habit & {
+  id: string;
+  positiveCount?: number;
+  negativeCount?: number;
+};
+
+type HabitListProps = {};
+
+const SwipeableHabitItem = ({ 
+  habit, 
+  onIncrement, 
+  onDecrement, 
+  onTaskClick, 
+  onDelete 
+}: {
+  habit: HabitResponse;
+  onIncrement: (id: string) => void;
+  onDecrement: (id: string) => void;
+  onTaskClick?: (habit: Habit) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const x = useMotionValue(0);
+  const EDIT_THRESHOLD = 40;
+  const DELETE_THRESHOLD = -40;
+  const EDIT_CONFIRM_THRESHOLD = 80;
+  const DELETE_CONFIRM_THRESHOLD = -80;
+  const editOpacity = useTransform(x, [0, EDIT_THRESHOLD], [0, 1]);
+  const deleteOpacity = useTransform(x, [EDIT_THRESHOLD, 0, DELETE_THRESHOLD], [0, 0, 1]);
+
+  return (
+    <motion.li 
+      className="relative overflow-hidden"
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, x: -100, scale: 0.8 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      layout
+    >
+      {/* Background action buttons - absolutely positioned */}
+      <div className="absolute inset-0 flex">
+        <motion.div style={{ opacity: editOpacity }} className="w-dvw flex items-center justify-start text-primary-foreground bg-primary pl-4">
+          <BitButton variant="ghost" size="sm" onClick={() => onTaskClick?.(habit as Habit)}>
+            <Edit className="h-4 w-4" />
+          </BitButton>
+        </motion.div>
+        <div className="flex-1" />
+        <motion.div style={{ opacity: deleteOpacity }} className="w-dvw flex items-center justify-end text-destructive-foreground bg-destructive pr-4">
+          <BitButton variant="ghost" size="sm" onClick={() => onDelete(habit.id)}>
+            <Trash2 className="h-4 w-4" />
+          </BitButton>
+        </motion.div>
+      </div>
+
+      {/* Swipeable content - absolutely positioned and offset */}
+      <motion.div
+        className="absolute inset-0"
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: -140, right: 140 }}
+        dragElastic={0.2}
+        dragTransition={{ bounceStiffness: 500, bounceDamping: 15 }}
+        onDragEnd={(_e, info) => {
+          const currentX = info.offset.x;
+          if (currentX >= EDIT_CONFIRM_THRESHOLD) {
+            onTaskClick?.(habit as Habit);
+            x.set(0);
+          } else if (currentX <= DELETE_CONFIRM_THRESHOLD) {
+            onDelete(habit.id);
+            x.set(0);
+          } else if (currentX >= EDIT_THRESHOLD) {
+            x.set(140);
+          } else if (currentX <= DELETE_THRESHOLD) {
+            x.set(-140);
+          } else {
+            x.set(0);
+          }
+        }}
+        whileDrag={{ cursor: "grabbing" }}
+        style={{ x }}
+      >
+        <div className="flex items-center gap-4 p-2 bg-background hover:bg-muted/50 transition-colors relative z-10">
+          <motion.div
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.1 }}
+          >
+            <BitButton
+              variant="outline"
+              size="sm"
+              onClick={() => onDecrement(habit.id)}
+              className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            >
+              <Minus className="h-4 w-4" />
+            </BitButton>
+          </motion.div>
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            {habit.category && (() => {
+              const Icon = getIconForCategory(habit.category);
+              return <Icon className="h-3 w-3 text-muted-foreground shrink-0" />;
+            })()}
+            <span className="font-regular text-xs">{habit.name}</span>
+          </div>
+          <motion.span 
+            className="font-regular text-xs min-w-[3ch] text-center"
+            key={(habit.positiveCount || 0) - (habit.negativeCount || 0)}
+            initial={{ scale: 1.3, color: 'var(--primary)' }}
+            animate={{ scale: 1, color: 'inherit' }}
+            transition={{ duration: 0.3 }}
+          >
+            {(habit.positiveCount || 0) - (habit.negativeCount || 0)}
+          </motion.span>
+          <motion.div
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.1 }}
+          >
+            <BitButton
+              variant="default"
+              size="sm"
+              onClick={() => onIncrement(habit.id)}
+              className="h-8 w-8 p-0"
+            >
+              <Plus className="h-4 w-4" />
+            </BitButton>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Spacer to maintain height in document flow */}
+      <div className="flex items-center gap-4 p-2 pointer-events-none invisible">
+        <div className="h-8 w-8" />
+        <span className="font-regular text-xs flex-1">{habit.name}</span>
+        <span className="font-regular text-xs min-w-[3ch] text-center">0</span>
+        <div className="h-8 w-8" />
+      </div>
+    </motion.li>
+  );
+};
+
+export const HabitList = ({}: HabitListProps) => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  const { data: habits, isLoading, error } = useHabits();
+  const incrementHabitMutation = useIncrementHabit();
+  const deleteHabitMutation = useDeleteHabit();
+  const labels = useThemeLabels();
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.matchMedia('(min-width: 640px)').matches);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  const handleTaskClick = (habit: Habit) => {
+    setEditingHabit(habit);
+    setDrawerOpen(true);
+  };
+
+  const handleIncrement = async (id: string) => {
+    await incrementHabitMutation.mutateAsync({ id, type: 'positive' });
+  };
+
+  const handleDecrement = async (id: string) => {
+    await incrementHabitMutation.mutateAsync({ id, type: 'negative' });
+  };
+
+  // Sort habits alphabetically
+  const sortedHabits = habits
+    ? [...habits].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    : [];
+
+  if (error) {
+    return (
+      <div>
+        <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
+          <h2 className="text-xl retro inline-flex items-center gap-2">
+            <Sun className="h-5 w-5" />
+            <span>{labels.habits}</span>
+          </h2>
+          <Drawer 
+            open={drawerOpen} 
+            onOpenChange={(open) => {
+              setDrawerOpen(open);
+              if (!open) {
+                setEditingHabit(null);
+              }
+            }}
+          >
+            <DrawerTrigger asChild>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
+              >
+                <BitButton onClick={() => setEditingHabit(null)}><Plus className="h-4 w-4" /></BitButton>
+              </motion.div>
+            </DrawerTrigger>
+            <DrawerContent 
+              side={isDesktop ? "right" : "bottom"}
+              className={isDesktop ? "w-full sm:max-w-lg" : "w-full"}
+            >
+              <DrawerHeader className="shrink-0">
+                <DrawerTitle>{editingHabit ? 'Edit Habit' : 'Create New Habit'}</DrawerTitle>
+              </DrawerHeader>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="pl-6 pr-4 pb-4">
+                  <HabitForm
+                    initialData={editingHabit || undefined}
+                    onSubmit={() => {
+                      setDrawerOpen(false);
+                      setEditingHabit(null);
+                    }}
+                  />
+                </div>
+              </ScrollArea>
+            </DrawerContent>
+          </Drawer>
+        </div>
+        <p className="text-red-500">Error loading habits: {error.message}</p>
+      </div>
+    );
+  }
+
+
+  return (
+    <>
+      <div>
+        <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
+          <h2 className="text-xl retro inline-flex items-center gap-2">
+            <Sun className="h-5 w-5" />
+            <span>{labels.habits}</span>
+          </h2>
+          <Drawer 
+            open={drawerOpen} 
+            onOpenChange={(open) => {
+              setDrawerOpen(open);
+              if (!open) {
+                setEditingHabit(null);
+              }
+            }}
+          >
+            <DrawerTrigger asChild>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
+              >
+                <BitButton onClick={() => setEditingHabit(null)}><Plus className="h-4 w-4" /></BitButton>
+              </motion.div>
+            </DrawerTrigger>
+            <DrawerContent 
+              side={isDesktop ? "right" : "bottom"}
+              className={isDesktop ? "w-full sm:max-w-lg" : "w-full"}
+            >
+              <DrawerHeader className="shrink-0">
+                <DrawerTitle>{editingHabit ? 'Edit Habit' : 'Create New Habit'}</DrawerTitle>
+              </DrawerHeader>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="pl-6 pr-4 pb-4">
+                  <HabitForm
+                    initialData={editingHabit || undefined}
+                    onSubmit={() => {
+                      setDrawerOpen(false);
+                      setEditingHabit(null);
+                    }}
+                  />
+                </div>
+              </ScrollArea>
+            </DrawerContent>
+          </Drawer>
+        </div>
+        {isLoading && <Spinner />}
+        {!isLoading && sortedHabits.length > 0 && (
+        <motion.ul 
+          className="space-y-2 relative"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.05,
+              },
+            },
+          }}
+        >
+          <AnimatePresence mode="popLayout">
+            {sortedHabits.map((habit) => (
+            <SwipeableHabitItem
+              key={habit.id}
+              habit={habit}
+              onIncrement={handleIncrement}
+              onDecrement={handleDecrement}
+              onTaskClick={handleTaskClick}
+              onDelete={(id) => {
+                if (confirm('Are you sure you want to delete this habit?')) {
+                  deleteHabitMutation.mutate(id, {
+                    onSuccess: () => {
+                      toast.success('Habit deleted');
+                    },
+                    onError: () => {
+                      toast.error('Failed to delete habit');
+                    },
+                  });
+                }
+              }}
+            />
+            ))}
+          </AnimatePresence>
+        </motion.ul>
+        )}
+        {!isLoading && sortedHabits.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 border-2 border-dashed border-border rounded-lg bg-muted/10">
+            <Sun className="h-12 w-12 text-muted-foreground opacity-50" />
+            <h2 className="text-lg retro">No {labels.habits} Yet</h2>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              {labels.habits} are daily activities you want to track. Build consistency one day at a time!
+            </p>
+            <Drawer 
+              open={drawerOpen} 
+              onOpenChange={(open) => {
+                setDrawerOpen(open);
+                if (!open) {
+                  setEditingHabit(null);
+                }
+              }}
+            >
+              <DrawerTrigger asChild>
+                <BitButton onClick={() => setEditingHabit(null)} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create {getSingularLabel(labels.habits)}
+                </BitButton>
+              </DrawerTrigger>
+              <DrawerContent 
+                side={isDesktop ? "right" : "bottom"}
+                className={isDesktop ? "w-full sm:max-w-lg" : "w-full"}
+              >
+                <DrawerHeader className="shrink-0">
+                  <DrawerTitle>{editingHabit ? 'Edit Habit' : 'Create New Habit'}</DrawerTitle>
+                </DrawerHeader>
+                <ScrollArea className="flex-1 min-h-0">
+                  <div className="pl-6 pr-4 pb-4">
+                    <HabitForm
+                      initialData={editingHabit || undefined}
+                      onSubmit={() => {
+                        setDrawerOpen(false);
+                        setEditingHabit(null);
+                      }}
+                    />
+                  </div>
+                </ScrollArea>
+              </DrawerContent>
+            </Drawer>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+

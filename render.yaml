@@ -1,0 +1,36 @@
+services:
+  # API Server
+  - type: web
+    name: pinegate-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd apps/server && pnpm install && pnpm build
+    startCommand: cd apps/server && pnpm start
+    healthCheckPath: /ping
+    envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: DEV_MODE
+        value: False
+      # Set these in Render Dashboard:
+      # - SUPABASE_PROJECT_ID
+      # - SUPABASE_ANON_KEY
+      # - SUPABASE_SERVICE_KEY
+      # - CLIENT_URL (set after web app is deployed)
+
+  # Web App (Static Site)
+  - type: web
+    name: pinegate-web
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd apps/web && pnpm install && pnpm build
+    staticPublishPath: apps/web/dist
+    # Set these in Render Dashboard:
+    # - VITE_SUPABASE_URL
+    # - VITE_SUPABASE_KEY
+    # - VITE_API_URL (set after API is deployed)
+    # - VITE_CLIENT_URL (set after web app is deployed)
+    # - VITE_DEV_MODE (set to False for production)
+
