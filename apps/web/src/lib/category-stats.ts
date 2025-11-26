@@ -102,8 +102,21 @@ export const statDisplayName: Record<StatType, string> = {
 // Get stat for a category
 export const getStatForCategory = (category: string | undefined): StatType => {
   if (!category) return 'luck';
-  const normalized = category.toLowerCase().trim();
-  return categoryToStat[normalized] || 'luck';
+  // Normalize: lowercase, trim, and remove any extra whitespace
+  const normalized = category.toLowerCase().trim().replace(/\s+/g, ' ');
+  
+  // Direct lookup
+  if (categoryToStat[normalized]) {
+    return categoryToStat[normalized];
+  }
+  
+  // Fallback: check if it contains common keywords
+  if (normalized.includes('work') || normalized.includes('income') || normalized.includes('money') || normalized.includes('gold')) {
+    return 'wealth';
+  }
+  
+  // Default fallback
+  return 'luck';
 };
 
 // Get icon for a category

@@ -153,6 +153,22 @@ export const TaskForm = (props: TaskFormProps = {}) => {
                     name="rrule" 
                     id="rrule" 
                 />
+                <div className="w-full">
+                    <BitLabel htmlFor="weight">Weight</BitLabel>
+                    <BitInput 
+                        id="weight" 
+                        name="weight" 
+                        type="number" 
+                        min="1" 
+                        max="10" 
+                        required 
+                        value={task.weight || 3}
+                        onChange={(e) => updateTask('weight', parseInt(e.target.value) || 3)}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                        Quest importance (1-10). Higher weight = more XP when completed.
+                    </p>
+                </div>
             </div>
             <div className="pt-4">
                 <BitButton 

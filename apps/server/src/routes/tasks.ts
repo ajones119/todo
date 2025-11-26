@@ -140,11 +140,13 @@ export async function tasksRoutes(app: FastifyInstance) {
         const taskData: {
           userId: string;
           title: string;
+          category?: string;
           rrule: string[];
           weight: number;
         } = {
           userId: userId,
           title: body.title,
+          category: body.category,
           rrule: body.rrule || [],
           weight: body.weight,
         };
