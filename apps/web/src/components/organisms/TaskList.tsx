@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
+import { motion, useMotionValue, useTransform, AnimatePresence, animate } from 'motion/react';
 import { useTaskTemplates, useTasksForDate, useCompleteTask, useDeleteTask, usePrefetchAdjacentDays } from '@/api/tasks';
 import { Checkbox } from '@/components/ui/8bit/checkbox';
 import { Button as BitButton } from '@/components/ui/8bit/button';
@@ -86,10 +86,14 @@ type SwipeableTaskItemProps = {
 
 const SwipeableTaskItem = ({ task, onToggleComplete, onTaskClick, onDelete }: SwipeableTaskItemProps) => {
   const x = useMotionValue(0);
-  const EDIT_THRESHOLD = 40;
-  const DELETE_THRESHOLD = -40;
-  const EDIT_CONFIRM_THRESHOLD = 80;
-  const DELETE_CONFIRM_THRESHOLD = -80;
+  // iOS-like thresholds: use percentage of action width (140px) for better touch feel
+  const ACTION_WIDTH = 140;
+  const EDIT_THRESHOLD = ACTION_WIDTH * 0.3; // 30% of action width
+  const DELETE_THRESHOLD = -ACTION_WIDTH * 0.3;
+  const EDIT_CONFIRM_THRESHOLD = ACTION_WIDTH * 0.6; // 60% for immediate action
+  const DELETE_CONFIRM_THRESHOLD = -ACTION_WIDTH * 0.6;
+  const VELOCITY_THRESHOLD = 500; // Minimum velocity (px/s) to trigger action even if threshold not met
+  
   const editOpacity = useTransform(x, [0, EDIT_THRESHOLD], [0, 1]);
   const deleteOpacity = useTransform(x, [EDIT_THRESHOLD, 0, DELETE_THRESHOLD], [0, 0, 1]);
   const isCompleted = !!task.completedAt;
@@ -120,26 +124,64 @@ const SwipeableTaskItem = ({ task, onToggleComplete, onTaskClick, onDelete }: Sw
 
       {/* Swipeable content - absolutely positioned and offset */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 touch-none"
         drag="x"
         dragDirectionLock
-        dragConstraints={{ left: -140, right: 140 }}
-        dragElastic={0.2}
-        dragTransition={{ bounceStiffness: 500, bounceDamping: 15 }}
+        dragConstraints={{ left: -ACTION_WIDTH, right: ACTION_WIDTH }}
+        dragElastic={0.05} // Much tighter elastic for better control on touch
+        dragTransition={{ 
+          bounceStiffness: 300, 
+          bounceDamping: 30,
+          power: 0.3 // Lower power for smoother deceleration
+        }}
         onDragEnd={(_e, info) => {
           const currentX = info.offset.x;
-          if (currentX >= EDIT_CONFIRM_THRESHOLD) {
+          const velocity = info.velocity.x;
+          
+          // Velocity-based decision: fast swipe can trigger action even if threshold not fully met
+          const fastSwipeRight = velocity > VELOCITY_THRESHOLD;
+          const fastSwipeLeft = velocity < -VELOCITY_THRESHOLD;
+          
+          // Determine target position based on position and velocity
+          if (currentX >= EDIT_CONFIRM_THRESHOLD || (currentX >= EDIT_THRESHOLD && fastSwipeRight)) {
+            // Trigger edit action
             onTaskClick?.(task as Task);
-            x.set(0);
-          } else if (currentX <= DELETE_CONFIRM_THRESHOLD) {
+            animate(x, 0, { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              duration: 0.3
+            });
+          } else if (currentX <= DELETE_CONFIRM_THRESHOLD || (currentX <= DELETE_THRESHOLD && fastSwipeLeft)) {
+            // Trigger delete action
             onDelete(task.id);
-            x.set(0);
+            animate(x, 0, { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              duration: 0.3
+            });
           } else if (currentX >= EDIT_THRESHOLD) {
-            x.set(140);
+            // Snap to edit position
+            animate(x, ACTION_WIDTH, { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30 
+            });
           } else if (currentX <= DELETE_THRESHOLD) {
-            x.set(-140);
+            // Snap to delete position
+            animate(x, -ACTION_WIDTH, { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30 
+            });
           } else {
-            x.set(0);
+            // Snap back to center with smooth spring animation
+            animate(x, 0, { 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 35 
+            });
           }
         }}
         whileDrag={{ cursor: "grabbing" }}
