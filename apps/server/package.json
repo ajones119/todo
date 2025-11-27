@@ -21,6 +21,7 @@
     "@mastra/libsql": "^0.16.2",
     "@supabase/supabase-js": "^2.81.1",
     "@todo/types": "workspace:*",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
     "fastify-cron": "^1.4.0",

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/api/root'
 import { Card } from '@/components/ui/8bit/card'
+import { formatUtcDate } from '@/lib/date-utils'
 
 interface WeeklySummary {
   id: string
@@ -63,7 +64,7 @@ export function StorySoFar() {
         <h2 className="text-lg retro">Story So Far</h2>
         {summary.createdAt && (
           <span className="text-xs text-muted-foreground">
-            {new Date(summary.createdAt).toLocaleDateString()}
+            {formatUtcDate(summary.createdAt)}
           </span>
         )}
       </div>

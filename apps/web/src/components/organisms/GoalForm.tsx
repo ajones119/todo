@@ -12,6 +12,7 @@ import { Calendar } from '@/components/ui/8bit/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
+import { utcToLocalDate, localDateToUtc } from '@/lib/date-utils'
 import { useCreateGoal, useUpdateGoal, type NewGoal } from '@/api/goals'
 import { toast } from 'sonner'
 import type { Goal } from '@todo/types'
@@ -132,33 +133,18 @@ export const GoalForm = (props: GoalFormProps = {}) => {
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
               {goal.dueDate ? (() => {
-                // Parse UTC date and create local date for display to avoid timezone offset
-                const utcDate = new Date(goal.dueDate);
-                const localDate = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
-                return format(localDate, 'PPP');
+                const localDate = utcToLocalDate(goal.dueDate);
+                return localDate ? format(localDate, 'PPP') : 'Pick a date';
               })() : 'Pick a date'}
             </BitButton>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="center" side="bottom">
             <Calendar
               mode="single"
-              selected={goal.dueDate ? (() => {
-                // Parse the UTC date and convert to local date for display
-                const utcDate = new Date(goal.dueDate);
-                // Create a local date with the same year, month, day
-                return new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
-              })() : undefined}
+              selected={goal.dueDate ? utcToLocalDate(goal.dueDate) ?? undefined : undefined}
               onSelect={(date) => {
                 if (date) {
-                  // Use local date components to create UTC date at midnight
-                  // This preserves the calendar date the user selected
-                  const selectedDate = new Date(Date.UTC(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate(),
-                    0, 0, 0, 0
-                  ));
-                  setGoal({ ...goal, dueDate: selectedDate.toISOString() });
+                  setGoal({ ...goal, dueDate: localDateToUtc(date) });
                 } else {
                   setGoal({ ...goal, dueDate: null });
                 }

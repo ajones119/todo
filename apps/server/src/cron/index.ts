@@ -3,8 +3,8 @@ import type { FastifyInstance } from 'fastify';
 import { mastra } from '../mastra/index.js';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 
-// Daily at 11 AM CST (17:00 UTC) - CST is UTC-6, so 11 AM CST = 5 PM UTC (cron format: 0 17 * * *)
-const DAILY_WORKFLOW_CRON_SCHEDULE = '0 17 * * *';
+// Daily at 2:30 PM CST (20:30 UTC) - CST is UTC-6, so 2:30 PM CST = 8:30 PM UTC (cron format: 30 20 * * *)
+const DAILY_WORKFLOW_CRON_SCHEDULE = '30 20 * * *';
 
 // Weekly event - runs every Sunday at midnight UTC (cron format: 0 0 * * 0)
 const WEEKLY_EVENT_CRON_SCHEDULE = '0 0 * * 0'; // Every Sunday at midnight UTC
@@ -72,7 +72,7 @@ export async function setupQuestBoardCron(app: FastifyInstance) {
     ],
   });
 
-  console.log('Daily workflow cron job registered:', DAILY_WORKFLOW_CRON_SCHEDULE, '(11 AM CST / 5 PM UTC)');
+  console.log('Daily workflow cron job registered:', DAILY_WORKFLOW_CRON_SCHEDULE, '(2:30 PM CST / 8:30 PM UTC)');
   console.log('Weekly Event cron job registered:', WEEKLY_EVENT_CRON_SCHEDULE);
 }
 

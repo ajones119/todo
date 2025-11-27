@@ -16,7 +16,7 @@ import { GoalForm, type GoalType } from './GoalForm';
 import { QuestBoard } from './QuestBoard';
 import { Plus, Trash2, Edit, Target } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { formatUtcDate } from '@/lib/date-utils';
 import { useThemeLabels } from '@/hooks/useThemeLabels';
 import { getSingularLabel } from '@/lib/theme-labels';
 import { getIconForCategory } from '@/lib/category-stats';
@@ -171,7 +171,7 @@ const SwipeableGoalItem = ({
             </div>
             {goal.dueDate && (
               <span className="text-xs text-muted-foreground">
-                Due: {format(new Date(goal.dueDate), 'MMM d, yyyy')}
+                Due: {formatUtcDate(goal.dueDate)}
               </span>
             )}
           </div>
@@ -187,7 +187,7 @@ const SwipeableGoalItem = ({
           </div>
           {goal.dueDate && (
             <span className="text-xs text-muted-foreground">
-              Due: {format(new Date(goal.dueDate), 'MMM d, yyyy')}
+              Due: {formatUtcDate(goal.dueDate)}
             </span>
           )}
         </div>

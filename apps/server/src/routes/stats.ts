@@ -250,7 +250,7 @@ export async function statsRoutes(app: FastifyInstance) {
 
         // If character doesn't exist, create one
         if (!existingCharacter) {
-          const insertData: { userId: string; level: number; name: string; description?: string } = {
+          const insertData: { userId: string; level: number; name: string; description?: string | null } = {
             userId: userId,
             level: 1,
             name: body.name.trim(),
