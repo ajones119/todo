@@ -10,6 +10,7 @@ import {
 import { Button as BitButton } from '@/components/ui/8bit/button';
 import { Label as BitLabel } from '@/components/ui/8bit/label';
 import { Input as BitInput } from '@/components/ui/8bit/input';
+import { Textarea as BitTextarea } from '@/components/ui/8bit/textarea';
 import { useUserCharacter, useUpdateCharacter } from '@/api/stats';
 import { toast } from 'sonner';
 
@@ -22,11 +23,13 @@ export const EditCharacterDrawer = ({ open, onOpenChange }: EditCharacterDrawerP
   const { data: character } = useUserCharacter();
   const updateCharacter = useUpdateCharacter();
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
   // Update local state when character data changes or drawer opens
   useEffect(() => {
     if (open && character) {
       setName(character.name || '');
+      setDescription(character.description || '');
     }
   }, [open, character]);
 
@@ -36,9 +39,17 @@ export const EditCharacterDrawer = ({ open, onOpenChange }: EditCharacterDrawerP
       return;
     }
 
+    if (description.length > 1000) {
+      toast.error('Description cannot exceed 1000 characters');
+      return;
+    }
+
     try {
-      await updateCharacter.mutateAsync({ name: name.trim() });
-      toast.success('Character name updated!');
+      await updateCharacter.mutateAsync({ 
+        name: name.trim(),
+        description: description.trim() || undefined
+      });
+      toast.success('Character updated!');
       onOpenChange(false);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update character';
@@ -47,8 +58,9 @@ export const EditCharacterDrawer = ({ open, onOpenChange }: EditCharacterDrawerP
   };
 
   const handleCancel = () => {
-    // Reset to original value
+    // Reset to original values
     setName(character?.name || '');
+    setDescription(character?.description || '');
     onOpenChange(false);
   };
 
@@ -77,6 +89,21 @@ export const EditCharacterDrawer = ({ open, onOpenChange }: EditCharacterDrawerP
                 Level: {character.level} {character.title && `• ${character.title}`}
               </p>
             )}
+          </div>
+          <div className="space-y-2">
+            <BitLabel htmlFor="character-description">Theme Mood or Short Backstory</BitLabel>
+            <BitTextarea
+              id="character-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter a theme mood or short backstory for your character..."
+              disabled={updateCharacter.isPending}
+              maxLength={1000}
+              rows={6}
+            />
+            <p className="text-xs text-muted-foreground">
+              {description.length}/1000 characters
+            </p>
           </div>
         </div>
         

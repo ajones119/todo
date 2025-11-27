@@ -166,6 +166,7 @@ const writeNarrativeReport = createStep({
         goals: Record<string, number>;
         name: string;
         title: string;
+        description: string;
       }>;
     };
     
@@ -191,7 +192,7 @@ Please:
 3. Write a compelling narrative report about the week
 4. Save the narration to the database using the addNarration tool
 
-The narrative should describe the effect of the users on the village and against the event, incorporating the level ups, new characters, and weekly activity details.`;
+The narrative should describe the effect of the users on the village and against the event, incorporating the level ups, new characters, and weekly activity details. Use each character's description (theme mood or short backstory) to add depth and context to how they are portrayed in the narrative.`;
 
     // Invoke the author agent with the prompt and runtime context
     const response = await authorAgent.generate(prompt, {

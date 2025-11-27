@@ -10,6 +10,7 @@ export interface UserCharacter {
   level: number;
   name?: string | null;
   title?: string | null;
+  description?: string | null;
   [key: string]: unknown;
 }
 
@@ -33,6 +34,7 @@ export const useUserCharacter = () => {
 
 export interface UpdateCharacterRequest {
   name: string;
+  description?: string;
 }
 
 export const useUpdateCharacter = () => {

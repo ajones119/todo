@@ -100,12 +100,12 @@ export const getWeekOfTasksAndAggregate = createStep({
     
     // Fetch character data for all users with completions
     const userIdsArray = Array.from(allUserIds);
-    let characters: Array<{ userId: string; name: string | null; title: string | null }> = [];
+    let characters: Array<{ userId: string; name: string | null; title: string | null; description: string | null }> = [];
     
     if (userIdsArray.length > 0) {
       const { data, error: charactersError } = await supabase
         .from('To_do_Character')
-        .select('userId, name, title')
+        .select('userId, name, title, description')
         .in('userId', userIdsArray);
       
       if (charactersError) {
@@ -119,17 +119,19 @@ export const getWeekOfTasksAndAggregate = createStep({
     const characterMap = new Map(
       characters.map(char => [char.userId, { 
         name: char.name || '', 
-        title: char.title || '' 
+        title: char.title || '',
+        description: char.description || ''
       }])
     );
     
-    // Initialize the result map: { [userId]: { habits: { [category]: total }, tasks: { [category]: total }, goals: { [category]: total }, name: string, title: string } }
+    // Initialize the result map: { [userId]: { habits: { [category]: total }, tasks: { [category]: total }, goals: { [category]: total }, name: string, title: string, description: string } }
     const userAggregates: Record<string, {
       habits: Record<string, number>;
       tasks: Record<string, number>;
       goals: Record<string, number>;
       name: string;
       title: string;
+      description: string;
     }> = {};
     
     // Helper to initialize user if not exists
@@ -142,6 +144,7 @@ export const getWeekOfTasksAndAggregate = createStep({
           goals: {},
           name: character?.name || '',
           title: character?.title || '',
+          description: character?.description || '',
         };
       }
     };

@@ -19,6 +19,7 @@ const clientOrigin = process.env.CLIENT_URL?.replace(/\/$/, '');
 const SUPABASE_PROJECT_ID = process.env.SUPABASE_PROJECT_ID;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const DEV_MODE = process.env.DEV_MODE;
 
 if (!SUPABASE_PROJECT_ID || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_KEY || !clientOrigin) {
     throw new Error(`Supabase environment variables (SUPABASE_PROJECT_ID, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY, CLIENT_URL) are required. Missing: ${JSON.stringify({ SUPABASE_PROJECT_ID: !!SUPABASE_PROJECT_ID, SUPABASE_ANON_KEY: !!SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY: !!SUPABASE_SERVICE_KEY, clientOrigin })}`);
@@ -177,7 +178,8 @@ const setupRoutes = async () => {
     },
     async (request, reply) => {
       // Check if DEV_MODE is enabled
-      if (process.env.DEV_MODE !== 'True' && process.env.DEV_MODE !== 'true') {
+      if (DEV_MODE !== 'TRUE' && DEV_MODE !== 'true') {
+        console.log('[DEV] Daily workflow trigger disabled - DEV_MODE is not TRUE', DEV_MODE);
         return reply.status(500).send({
           error: 'Developer endpoints are disabled',
           message: 'This endpoint is only available when DEV_MODE=True'

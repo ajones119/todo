@@ -23,7 +23,7 @@ export type GoalType = Omit<Goal, 'userId' | 'createdAt' | 'updatedAt' | 'delete
 const createEmptyGoal = (): NewGoal => {
   return {
     name: '',
-    category: '',
+    category: 'luck', // Default to misc
     dueDate: null,
     rewarded: false,
     weight: 3,
@@ -52,12 +52,15 @@ export const GoalForm = (props: GoalFormProps = {}) => {
       setGoal({
         fromTemplate: initialData.fromTemplate || false,
         name: initialData.name || '',
-        category: initialData.category || '',
+        category: initialData.category || 'luck', // Default to luck if empty
         dueDate: initialData.dueDate || null,
         rewarded: initialData.rewarded || false,
         weight: initialData.weight || 3,
         completedAt: initialData.completedAt || null,
       })
+    } else {
+      // Reset to empty goal if initialData becomes undefined
+      setGoal(createEmptyGoal())
     }
   }, [initialData])
 
@@ -81,13 +84,19 @@ export const GoalForm = (props: GoalFormProps = {}) => {
             weight: goal.weight,
           },
         })
+        toast.success('Goal updated successfully!')
       } else {
         await createGoalMutation.mutateAsync(goal)
+        toast.success('Goal created successfully!')
+        // Reset form after successful create
+        setGoal(createEmptyGoal())
       }
 
       onSubmit?.(goal)
     } catch (error) {
       console.error('Error saving goal:', error)
+      const errorMessage = error instanceof Error ? error.message : `Failed to ${isEditMode ? 'update' : 'create'} goal`
+      toast.error(errorMessage)
     }
   }
 
@@ -100,13 +109,15 @@ export const GoalForm = (props: GoalFormProps = {}) => {
           value={goal.name}
           onChange={(e) => setGoal({ ...goal, name: e.target.value })}
           placeholder="e.g., Learn Spanish, Run Marathon, Write Book"
+          minLength={1}
+          maxLength={100}
           required
         />
       </div>
 
       <CategorySelect
         id="category"
-        value={goal.category || ''}
+        value={goal.category || 'luck'}
         onChange={(value) => setGoal({ ...goal, category: value })}
       />
 
@@ -123,7 +134,7 @@ export const GoalForm = (props: GoalFormProps = {}) => {
               {goal.dueDate ? format(new Date(goal.dueDate), 'PPP') : 'Pick a date'}
             </BitButton>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0" align="center" side="bottom">
             <Calendar
               mode="single"
               selected={goal.dueDate ? (() => {
@@ -173,7 +184,9 @@ export const GoalForm = (props: GoalFormProps = {}) => {
 
       <div className="flex gap-2 pt-4">
         <BitButton type="submit" disabled={createGoalMutation.isPending || updateGoalMutation.isPending}>
-          {isEditMode ? 'Update Goal' : 'Create Goal'}
+          {(createGoalMutation.isPending || updateGoalMutation.isPending) 
+            ? (isEditMode ? 'Updating...' : 'Creating...') 
+            : (isEditMode ? 'Update Goal' : 'Create Goal')}
         </BitButton>
       </div>
     </form>

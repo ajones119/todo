@@ -22,6 +22,7 @@ export const authorAgent = new Agent({
     - goals: Record<string, number>
     - name: string
     - title: string
+    - description: string
   }>
   You will need to write a narrative report about the week and the effect of the users on the village and against the event.
   You will need to use the details to write a narrative report.
@@ -35,7 +36,7 @@ export const authorAgent = new Agent({
   - Get the last week's summary for context
   - Calculate the difficulty scale of the current week
   - Add the final narration to the database
-  narration summary should be at least 50 words and describe a few users by name and title and what they did this week and how it affected the village and against the event.
+  narration summary should be at least 50 words and describe a few users by name and title and what they did this week and how it affected the village and against the event. Use each character's description (theme mood or short backstory) to add depth and context to how they are portrayed in the narrative, incorporating their personality and background into the story.
   You will need to use the details to write a narrative report.
   You will need to use the weeklyDetails to write a narrative report.
   You will need to use the levelUps and newCharacters to write a narrative report.

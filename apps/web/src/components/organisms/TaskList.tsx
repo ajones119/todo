@@ -13,10 +13,10 @@ import {
   DrawerTrigger,
 } from '@/components/ui/8bit/drawer';
 import { ScrollArea } from '@/components/ui/8bit/scroll-area';
-import { Spinner } from '@/components/ui/8bit/spinner';
+import { HouseLoader } from '@/components/ui/8bit/house-loader';
 import { TaskForm, type Task } from './TaskForm';
 import { RRule } from 'rrule';
-import { CalendarIcon, Edit, Trash2, SunIcon, PlusIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Edit, Trash2, Repeat, PlusIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { toast } from 'sonner';
 import { useThemeLabels } from '@/hooks/useThemeLabels';
@@ -320,13 +320,29 @@ export const TaskList = ({}: TaskListProps) => {
     { todaysTasks: [] as typeof allTasks, otherTasks: [] as typeof allTasks }
   );
 
-  // Sort both groups alphabetically by title
-  const sortedTodaysTasks = [...todaysTasks].sort((a, b) => 
-    (a.title || '').localeCompare(b.title || '')
-  );
-  const sortedOtherTasks = [...otherTasks].sort((a, b) => 
-    (a.title || '').localeCompare(b.title || '')
-  );
+  // Sort both groups by createdAt (newest first), then alphabetically by title
+  const sortedTodaysTasks = [...todaysTasks].sort((a, b) => {
+    // First sort by createdAt (newest first)
+    // Items without createdAt go to the bottom
+    const aDate = a.createdAt ? new Date(a.createdAt).getTime() : -Infinity;
+    const bDate = b.createdAt ? new Date(b.createdAt).getTime() : -Infinity;
+    if (bDate !== aDate) {
+      return bDate - aDate; // Descending (newest first)
+    }
+    // If createdAt is the same, sort alphabetically
+    return (a.title || '').localeCompare(b.title || '');
+  });
+  const sortedOtherTasks = [...otherTasks].sort((a, b) => {
+    // First sort by createdAt (newest first)
+    // Items without createdAt go to the bottom
+    const aDate = a.createdAt ? new Date(a.createdAt).getTime() : -Infinity;
+    const bDate = b.createdAt ? new Date(b.createdAt).getTime() : -Infinity;
+    if (bDate !== aDate) {
+      return bDate - aDate; // Descending (newest first)
+    }
+    // If createdAt is the same, sort alphabetically
+    return (a.title || '').localeCompare(b.title || '');
+  });
 
   const handlePreviousDay = () => {
     setSelectedDate(subDays(selectedDate, 1));
@@ -341,7 +357,7 @@ export const TaskList = ({}: TaskListProps) => {
       <div>
         <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
           <h2 className="text-xl retro inline-flex items-center gap-2">
-            <SunIcon className="h-5 w-5" />
+            <Repeat className="h-5 w-5" />
             <span>{labels.tasks}</span>
           </h2>
           <Drawer 
@@ -422,11 +438,11 @@ export const TaskList = ({}: TaskListProps) => {
           </BitButton>
           </CardContent>
         </Card>
-        {isLoading && <Spinner />}
+        {isLoading && <div className="flex justify-center items-center h-full mt-20"><HouseLoader size="lg" /></div>}
         {error && <p className="text-red-500">Error loading tasks</p>}
         {!isLoading && (sortedTodaysTasks.length > 0 || sortedOtherTasks.length > 0) && (
         <motion.ul 
-          className="space-y-2 relative"
+          className="space-y-2 relative p-4"
           initial="hidden"
           animate="visible"
           variants={{
@@ -501,7 +517,7 @@ export const TaskList = ({}: TaskListProps) => {
         )}
         {!isLoading && sortedTodaysTasks.length === 0 && sortedOtherTasks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 border-2 border-dashed border-border rounded-lg bg-muted/10">
-            <SunIcon className="h-12 w-12 text-muted-foreground opacity-50" />
+            <Repeat className="h-12 w-12 text-muted-foreground opacity-50" />
             <h2 className="text-lg retro">No {labels.tasks}</h2>
             <p className="text-sm text-muted-foreground max-w-sm">
               {labels.tasks} are repeating tasks. Create one to get started!

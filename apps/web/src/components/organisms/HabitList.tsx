@@ -10,7 +10,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/8bit/drawer';
 import { ScrollArea } from '@/components/ui/8bit/scroll-area';
-import { Spinner } from '@/components/ui/8bit/spinner';
+import { HouseLoader } from '@/components/ui/8bit/house-loader';
 import { HabitForm, type Habit } from './HabitForm';
 import { Plus, Minus, Trash2, Edit, Sun } from 'lucide-react';
 import { toast } from 'sonner';
@@ -229,9 +229,19 @@ export const HabitList = ({}: HabitListProps) => {
     await incrementHabitMutation.mutateAsync({ id, type: 'negative' });
   };
 
-  // Sort habits alphabetically
+  // Sort habits by createdAt (newest first), then alphabetically
   const sortedHabits = habits
-    ? [...habits].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    ? [...habits].sort((a, b) => {
+        // First sort by createdAt (newest first)
+        // Items without createdAt go to the bottom
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : -Infinity;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : -Infinity;
+        if (bDate !== aDate) {
+          return bDate - aDate; // Descending (newest first)
+        }
+        // If createdAt is the same, sort alphabetically
+        return (a.name || '').localeCompare(b.name || '');
+      })
     : [];
 
   if (error) {
@@ -334,10 +344,10 @@ export const HabitList = ({}: HabitListProps) => {
             </DrawerContent>
           </Drawer>
         </div>
-        {isLoading && <Spinner />}
+        {isLoading && <div className="flex justify-center items-center h-full mt-20"><HouseLoader size="lg" /></div>}
         {!isLoading && sortedHabits.length > 0 && (
         <motion.ul 
-          className="space-y-2 relative"
+          className="space-y-2 relative p-4"
           initial="hidden"
           animate="visible"
           variants={{

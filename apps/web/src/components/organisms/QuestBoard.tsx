@@ -69,22 +69,22 @@ export const QuestBoard = () => {
                 >
                   <div className="min-w-0 overflow-hidden">
                     <div className="flex items-center gap-1">
-                      <p className="text-xs font-bold retro">{quest.name}</p>
                       {quest.userId && (
-                        <User className="h-3 w-3 text-muted-foreground" />
+                        <User className="h-3 w-3 text-muted-foreground shrink-0" />
                       )}
+                      <p className="text-xs font-bold retro">{quest.name}</p>
                     </div>
                     <div className="flex items-center gap-0.5 mt-1 text-xs">
                       {quest.category && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[8px] text-muted-foreground">
                           {formatCategoryName(quest.category)}
                         </span>
                       )}
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[8px] text-muted-foreground">
                         : {formatWeight(quest.weight)}
                       </span>
                       {quest.daysToComplete && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[8px] text-muted-foreground">
                           {' '}({quest.daysToComplete} days)
                         </span>
                       )}

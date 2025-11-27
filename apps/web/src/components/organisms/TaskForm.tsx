@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { Button as BitButton } from '@/components/ui/8bit/button'
 import { Input as BitInput } from '@/components/ui/8bit/input'
 import { Label as BitLabel } from '@/components/ui/8bit/label'
+import { Select as BitSelect } from '@/components/ui/8bit/select'
+import { SelectTrigger as BitSelectTrigger } from '@/components/ui/8bit/select'
+import { SelectValue as BitSelectValue } from '@/components/ui/8bit/select'
+import { SelectContent as BitSelectContent } from '@/components/ui/8bit/select'
+import { SelectItem as BitSelectItem } from '@/components/ui/8bit/select'
 import { CategorySelect } from '@/components/ui/8bit/category-select'
 import { RRuleInput } from './RRuleInput'
 import { useCreateTask, useUpdateTask, type NewTask } from '@/api/tasks'
@@ -20,7 +25,7 @@ const createEmptyTask = (): NewTask => {
     const dtstart = defaultDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
     return {
         title: '',
-        category: '',
+        category: 'luck', // Default to misc
         rrule: [`FREQ=DAILY;INTERVAL=1;DTSTART=${dtstart}`],
         weight: 3,
 
@@ -46,7 +51,10 @@ export const TaskForm = (props: TaskFormProps = {}) => {
     // Update form when initialData changes
     useEffect(() => {
         if (initialData) {
-            setTask(initialData)
+            setTask({
+                ...initialData,
+                category: initialData.category || 'luck', // Default to luck if empty
+            })
         } else {
             // Reset to empty task if initialData becomes undefined
             setTask(createEmptyTask())
@@ -138,9 +146,8 @@ export const TaskForm = (props: TaskFormProps = {}) => {
                 </div>
                 <CategorySelect
                     id="category"
-                    value={task.category || ''}
+                    value={task.category || 'luck'}
                     onChange={(value) => updateTask('category', value)}
-                    required
                 />
                 <RRuleInput 
                     value={currentRRule || getDefaultRRule()} 
@@ -155,19 +162,21 @@ export const TaskForm = (props: TaskFormProps = {}) => {
                 />
                 <div className="w-full">
                     <BitLabel htmlFor="weight">Weight</BitLabel>
-                    <BitInput 
-                        id="weight" 
-                        name="weight" 
-                        type="number" 
-                        min="1" 
-                        max="10" 
-                        required 
-                        value={task.weight || 3}
-                        onChange={(e) => updateTask('weight', parseInt(e.target.value) || 3)}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Quest importance (1-10). Higher weight = more XP when completed.
-                    </p>
+                    <BitSelect
+                        value={task.weight?.toString() || '3'}
+                        onValueChange={(value) => updateTask('weight', parseInt(value))}
+                    >
+                        <BitSelectTrigger id="weight">
+                            <BitSelectValue />
+                        </BitSelectTrigger>
+                        <BitSelectContent>
+                            <BitSelectItem value="1">1 - Low</BitSelectItem>
+                            <BitSelectItem value="2">2 - Medium-Low</BitSelectItem>
+                            <BitSelectItem value="3">3 - Medium</BitSelectItem>
+                            <BitSelectItem value="4">4 - Medium-High</BitSelectItem>
+                            <BitSelectItem value="5">5 - High</BitSelectItem>
+                        </BitSelectContent>
+                    </BitSelect>
                 </div>
             </div>
             <div className="pt-4">

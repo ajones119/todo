@@ -5,8 +5,9 @@ import { Button as BitButton } from '@/components/ui/8bit/button'
 import { Label as BitLabel } from '@/components/ui/8bit/label'
 import { ThemePicker } from '@/components/ui/8bit/theme-picker'
 import { apiRequest } from '@/api/root'
-import { HelpCircle, User } from 'lucide-react'
+import { HelpCircle, User, Map } from 'lucide-react'
 import { EditCharacterDrawer } from '@/components/organisms/EditCharacterDrawer'
+import { RoadmapDrawer } from '@/components/organisms/RoadmapDrawer'
 import { useUserCharacter } from '@/api/stats'
 
 export const Route = createFileRoute('/_authenticated/settings')({
@@ -23,6 +24,7 @@ function SettingsPage() {
   const [workflowLoading, setWorkflowLoading] = useState(false)
   const [dailyWorkflowLoading, setDailyWorkflowLoading] = useState(false)
   const [editCharacterDrawerOpen, setEditCharacterDrawerOpen] = useState(false)
+  const [roadmapDrawerOpen, setRoadmapDrawerOpen] = useState(false)
   const { data: character } = useUserCharacter()
   
   // Check if DEV_MODE is enabled
@@ -147,9 +149,13 @@ function SettingsPage() {
               <HelpCircle className="h-4 w-4 mr-2" />
               Show Introduction
             </BitButton>
+            <BitButton variant="secondary" onClick={() => setRoadmapDrawerOpen(true)}>
+              <Map className="h-4 w-4 mr-2" />
+              View Roadmap
+            </BitButton>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            View the introduction guide to learn how everything works.
+            View the introduction guide to learn how everything works, or check out the roadmap for upcoming features.
           </p>
         </div>
 
@@ -184,6 +190,10 @@ function SettingsPage() {
       <EditCharacterDrawer 
         open={editCharacterDrawerOpen} 
         onOpenChange={setEditCharacterDrawerOpen} 
+      />
+      <RoadmapDrawer 
+        open={roadmapDrawerOpen} 
+        onOpenChange={setRoadmapDrawerOpen} 
       />
     </div>
   )

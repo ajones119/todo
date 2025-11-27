@@ -139,13 +139,13 @@ function AuthenticatedLayout() {
           to="/tasks" 
           className="flex items-center justify-center border-r-2 border-foreground dark:border-ring last:border-r-0 [&.active]:bg-primary [&.active]:text-primary-foreground hover:bg-muted/20 transition-colors"
         >
-          <Sun className="h-6 w-6" />
+          <Repeat className="h-6 w-6" />
         </Link>
         <Link 
           to="/habits" 
           className="flex items-center justify-center border-r-2 border-foreground dark:border-ring last:border-r-0 [&.active]:bg-primary [&.active]:text-primary-foreground hover:bg-muted/20 transition-colors"
         >
-          <Repeat className="h-6 w-6" />
+          <Sun className="h-6 w-6" />
         </Link>
         <Link 
           to="/quests" 

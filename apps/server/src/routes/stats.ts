@@ -202,8 +202,8 @@ export async function statsRoutes(app: FastifyInstance) {
         return reply.status(401).send({ error: 'Unauthorized' });
       }
 
-      // Validate request body - only allow name for now
-      const body = request.body as { name?: string };
+      // Validate request body
+      const body = request.body as { name?: string; description?: string };
       
       if (body.name === undefined) {
         return reply.status(400).send({
@@ -220,6 +220,22 @@ export async function statsRoutes(app: FastifyInstance) {
         });
       }
 
+      // Validate description if provided
+      if (body.description !== undefined) {
+        if (typeof body.description !== 'string') {
+          return reply.status(400).send({
+            error: 'Invalid request body',
+            message: 'Description must be a string'
+          });
+        }
+        if (body.description.length > 1000) {
+          return reply.status(400).send({
+            error: 'Invalid request body',
+            message: 'Description cannot exceed 1000 characters'
+          });
+        }
+      }
+
       try {
         // First, verify character exists and belongs to user
         const { data: existingCharacter, error: fetchError } = await app.supabase
@@ -234,13 +250,18 @@ export async function statsRoutes(app: FastifyInstance) {
 
         // If character doesn't exist, create one
         if (!existingCharacter) {
+          const insertData: { userId: string; level: number; name: string; description?: string } = {
+            userId: userId,
+            level: 1,
+            name: body.name.trim(),
+          };
+          if (body.description !== undefined) {
+            insertData.description = body.description.trim() || null;
+          }
+
           const { data: newCharacter, error: insertError } = await app.supabase
             .from('To_do_Character')
-            .insert({
-              userId: userId,
-              level: 1,
-              name: body.name.trim(),
-            })
+            .insert(insertData)
             .select()
             .single();
 
@@ -251,12 +272,17 @@ export async function statsRoutes(app: FastifyInstance) {
           return reply.status(200).send(newCharacter);
         }
 
-        // Update existing character - only name for now
+        // Update existing character
+        const updateData: { name: string; description?: string | null } = {
+          name: body.name.trim(),
+        };
+        if (body.description !== undefined) {
+          updateData.description = body.description.trim() || null;
+        }
+
         const { data: updatedCharacter, error: updateError } = await app.supabase
           .from('To_do_Character')
-          .update({
-            name: body.name.trim(),
-          })
+          .update(updateData)
           .eq('userId', userId)
           .select()
           .single();

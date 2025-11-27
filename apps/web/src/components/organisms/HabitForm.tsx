@@ -19,7 +19,7 @@ export type Habit = Omit<HabitTemplate, 'userId' | 'createdAt' | 'updatedAt' | '
 const createEmptyHabit = (): NewHabit => {
   return {
     name: '',
-    category: '',
+    category: 'luck', // Default to misc
     weight: 3,
   }
 }
@@ -43,9 +43,12 @@ export const HabitForm = (props: HabitFormProps = {}) => {
     if (initialData) {
       setHabit({
         name: initialData.name || '',
-        category: initialData.category || '',
+        category: initialData.category || 'luck', // Default to luck if empty
         weight: initialData.weight || 3,
       })
+    } else {
+      // Reset to empty habit if initialData becomes undefined
+      setHabit(createEmptyHabit())
     }
   }, [initialData])
 
@@ -67,13 +70,19 @@ export const HabitForm = (props: HabitFormProps = {}) => {
             weight: habit.weight,
           },
         })
+        toast.success('Habit updated successfully!')
       } else {
         await createHabitMutation.mutateAsync(habit)
+        toast.success('Habit created successfully!')
+        // Reset form after successful create
+        setHabit(createEmptyHabit())
       }
 
       onSubmit?.(habit)
     } catch (error) {
       console.error('Error saving habit:', error)
+      const errorMessage = error instanceof Error ? error.message : `Failed to ${isEditMode ? 'update' : 'create'} habit`
+      toast.error(errorMessage)
     }
   }
 
@@ -86,13 +95,15 @@ export const HabitForm = (props: HabitFormProps = {}) => {
           value={habit.name}
           onChange={(e) => setHabit({ ...habit, name: e.target.value })}
           placeholder="e.g., Exercise, Read, Meditate"
+          minLength={1}
+          maxLength={100}
           required
         />
       </div>
 
       <CategorySelect
         id="category"
-        value={habit.category || ''}
+        value={habit.category || 'luck'}
         onChange={(value) => setHabit({ ...habit, category: value })}
       />
 
@@ -117,7 +128,9 @@ export const HabitForm = (props: HabitFormProps = {}) => {
 
       <div className="flex gap-2 pt-4">
         <BitButton type="submit" disabled={createHabitMutation.isPending || updateHabitMutation.isPending}>
-          {isEditMode ? 'Update Habit' : 'Create Habit'}
+          {(createHabitMutation.isPending || updateHabitMutation.isPending) 
+            ? (isEditMode ? 'Updating...' : 'Creating...') 
+            : (isEditMode ? 'Update Habit' : 'Create Habit')}
         </BitButton>
       </div>
     </form>
