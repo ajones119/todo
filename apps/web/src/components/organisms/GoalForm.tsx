@@ -131,7 +131,12 @@ export const GoalForm = (props: GoalFormProps = {}) => {
               type="button"
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {goal.dueDate ? format(new Date(goal.dueDate), 'PPP') : 'Pick a date'}
+              {goal.dueDate ? (() => {
+                // Parse UTC date and create local date for display to avoid timezone offset
+                const utcDate = new Date(goal.dueDate);
+                const localDate = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
+                return format(localDate, 'PPP');
+              })() : 'Pick a date'}
             </BitButton>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="center" side="bottom">
