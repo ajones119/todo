@@ -41,7 +41,7 @@ export function DailyStory() {
   })
 
   // Check if there are more stories (next)
-  const { data: hasNext } = useQuery<boolean>({
+  /*const { data: hasNext } = useQuery<boolean>({
     queryKey: ['daily-story-has-next', offset],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -63,7 +63,7 @@ export function DailyStory() {
 
       return !!data
     },
-  })
+  })*/
 
   const handlePrevious = () => {
     if (offset > 0) {
