@@ -16,6 +16,7 @@ interface WeeklySummary {
 
 export function StorySoFar() {
   const [offset, setOffset] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const { data: summary, isLoading, error } = useQuery<WeeklySummary | null>({
     queryKey: ['weekly-summary', offset],
@@ -58,12 +59,14 @@ export function StorySoFar() {
   const handlePrevious = () => {
     if (offset > 0) {
       setOffset(offset - 1)
+      setIsExpanded(false) // Reset expansion when changing stories
     }
   }
 
   const handleNext = () => {
     if (hasNext) {
       setOffset(offset + 1)
+      setIsExpanded(false) // Reset expansion when changing stories
     }
   }
 
@@ -126,8 +129,19 @@ export function StorySoFar() {
           </BitButton>
         </div>
       </div>
-      <div className="text-2xs whitespace-pre-wrap leading-relaxed">
-        {summary.summary}
+      <div className="space-y-2">
+        <div className={`text-2xs whitespace-pre-wrap leading-relaxed ${!isExpanded ? 'line-clamp-5' : ''}`}>
+          {summary.summary}
+        </div>
+        <BitButton
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-2xs h-auto p-0"
+          type="button"
+        >
+          {isExpanded ? 'Read less' : 'Read more'}
+        </BitButton>
       </div>
       {summary.nextWeekPrompt && (
         <div className="pt-3 border-t border-border">

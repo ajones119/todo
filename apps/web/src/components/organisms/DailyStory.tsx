@@ -14,6 +14,7 @@ interface DailyStory {
 
 export function DailyStory() {
   const [offset, setOffset] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const { data: dailyStory, isLoading, error } = useQuery<DailyStory | null>({
     queryKey: ['daily-story', offset],
@@ -68,12 +69,14 @@ export function DailyStory() {
   const handlePrevious = () => {
     if (offset > 0) {
       setOffset(offset - 1)
+      setIsExpanded(false) // Reset expansion when changing stories
     }
   }
 
   const handleNext = () => {
     if (true) {
       setOffset(offset + 1)
+      setIsExpanded(false) // Reset expansion when changing stories
     }
   }
 
@@ -134,8 +137,19 @@ export function DailyStory() {
           </BitButton>
         </div>
       </div>
-      <div className="text-2xs whitespace-pre-wrap leading-relaxed">
-        {dailyStory.agentNotes}
+      <div className="space-y-2">
+        <div className={`text-2xs whitespace-pre-wrap leading-relaxed ${!isExpanded ? 'line-clamp-5' : ''}`}>
+          {dailyStory.agentNotes}
+        </div>
+        <BitButton
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-2xs h-auto p-0"
+          type="button"
+        >
+          {isExpanded ? 'Read less' : 'Read more'}
+        </BitButton>
       </div>
     </Card>
   )
