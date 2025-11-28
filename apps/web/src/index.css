@@ -296,6 +296,13 @@
   }
 }
 
+@layer utilities {
+  .text-2xs {
+    font-size: 0.5rem;
+    line-height: 0.75rem;
+  }
+}
+
 /* Smooth page transitions */
 [data-router-view] {
   animation: fadeIn 0.2s ease-out;
@@ -355,5 +362,27 @@ button, a {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* iOS keyboard handling for drawers */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific fixes - ensure drawers use dynamic viewport height */
+  [data-slot="drawer-content"][data-vaul-drawer-direction="bottom"] {
+    /* Use dynamic viewport height on iOS to adjust when keyboard appears */
+    max-height: 90dvh;
+  }
+}
+
+/* Screen shake animation */
+@keyframes screenShake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
   }
 }

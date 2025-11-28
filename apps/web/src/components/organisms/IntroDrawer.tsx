@@ -24,14 +24,14 @@ export const IntroDrawer = ({ open, onOpenChange }: IntroDrawerProps) => {
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent side="bottom" className="max-h-[90vh]">
+      <DrawerContent side="bottom" className="max-h-[90dvh]">
         <DrawerHeader>
           <DrawerTitle>Welcome to Pinegate Village!</DrawerTitle>
           <DrawerDescription className="text-xs text-muted-foreground">
           </DrawerDescription>
         </DrawerHeader>
         
-        <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4 space-y-6">
           {/* Introduction */}
           <div className="space-y-2 border-b border-border pb-4">
             <p className="text-sm text-muted-foreground">A fantasy village where your productivity shapes an ongoing narrative. Track your tasks, build your character, and watch your story unfold.</p>

@@ -20,6 +20,7 @@ import { formatUtcDate } from '@/lib/date-utils';
 import { useThemeLabels } from '@/hooks/useThemeLabels';
 import { getSingularLabel } from '@/lib/theme-labels';
 import { getIconForCategory } from '@/lib/category-stats';
+import { useReaction } from './Reaction';
 
 type GoalResponse = GoalType & {
   id: string;
@@ -220,8 +221,15 @@ export const GoalList = ({}: GoalListProps) => {
     setDrawerOpen(true);
   };
 
+  const { runNegativeReaction, runPositiveReaction } = useReaction();
+
   const handleToggleComplete = async (id: string, completed: boolean) => {
     await completeGoalMutation.mutateAsync({ id, completed });
+    if (completed) {
+      runPositiveReaction();
+    } else {
+      runNegativeReaction();
+    }
   };
 
   // Sort goals by createdAt (newest first), then alphabetically

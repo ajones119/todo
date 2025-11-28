@@ -46,7 +46,7 @@ export const YesterdayTasksDrawer = ({ open, onOpenChange }: YesterdayTasksDrawe
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent side="bottom" className="max-h-[90vh]">
+      <DrawerContent side="bottom" className="max-h-[90dvh]">
         <DrawerHeader>
           <DrawerTitle>Complete Yesterday&apos;s Tasks</DrawerTitle>
           <DrawerDescription>
@@ -54,7 +54,7 @@ export const YesterdayTasksDrawer = ({ open, onOpenChange }: YesterdayTasksDrawe
           </DrawerDescription>
         </DrawerHeader>
         
-        <div className="flex-1 overflow-y-auto px-6 pb-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4">
           {isLoading && (
             <div className="text-center py-8">
               <p>Loading yesterday&apos;s tasks...</p>

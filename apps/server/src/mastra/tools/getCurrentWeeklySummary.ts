@@ -2,15 +2,15 @@ import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const getLastWeekSummary = createTool({
-  id: "get-last-week-summary",
-  description: "Get the PREVIOUS week's summary from the database. This contains what ALREADY HAPPENED last week. You MUST read this summary and build on it - DO NOT repeat what it says. This is the story that was written LAST WEEK, and your job is to write what happens NEXT WEEK.",
+export const getCurrentWeeklySummary = createTool({
+  id: "get-current-weekly-summary",
+  description: "Get the current weekly summary (the last one in the database) and return it",
   inputSchema: z.object({}),
   outputSchema: z.object({
-    summary: z.string().nullable().describe("The full narrative summary from last week - this is what ALREADY HAPPENED. Do not repeat this content."),
-    nextWeekPrompt: z.string().nullable().describe("The prompt that was set up for this week - use this as the starting point for what happens this week"),
-    agentNotes: z.string().nullable().describe("Important context notes from last week that should be incorporated"),
-    createdAt: z.string().nullable().describe("When this summary was created"),
+    summary: z.string().nullable(),
+    nextWeekPrompt: z.string().nullable(),
+    agentNotes: z.string().nullable(),
+    createdAt: z.string().nullable(),
   }),
   execute: async ({ context, runtimeContext }) => {
     const supabase = runtimeContext?.get("supabase") as SupabaseClient | undefined;
@@ -28,7 +28,7 @@ export const getLastWeekSummary = createTool({
       .maybeSingle();
     
     if (error) {
-      console.error('[getLastWeekSummary] Error fetching summary:', error);
+      console.error('[getCurrentWeeklySummary] Error fetching summary:', error);
       throw new Error(`Failed to fetch summary: ${error.message}`);
     }
     
@@ -39,7 +39,7 @@ export const getLastWeekSummary = createTool({
       createdAt: data?.createdAt || null,
     };
     
-    console.log('[getLastWeekSummary] Result:', result);
+    console.log('[getCurrentWeeklySummary] Result:', result);
     return result;
   },
 });

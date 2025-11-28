@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useThemeLabels } from '@/hooks/useThemeLabels';
 import { getSingularLabel } from '@/lib/theme-labels';
 import { getIconForCategory } from '@/lib/category-stats';
+import { useReaction } from './Reaction';
 
 type HabitResponse = Habit & {
   id: string;
@@ -221,8 +222,11 @@ export const HabitList = ({}: HabitListProps) => {
     setDrawerOpen(true);
   };
 
+  const { runPositiveReaction } = useReaction();
+
   const handleIncrement = async (id: string) => {
     await incrementHabitMutation.mutateAsync({ id, type: 'positive' });
+    runPositiveReaction();
   };
 
   const handleDecrement = async (id: string) => {

@@ -60,7 +60,7 @@ const statusLabels = {
 export const RoadmapDrawer = ({ open, onOpenChange }: RoadmapDrawerProps) => {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent side="bottom" className="max-h-[90vh]">
+      <DrawerContent side="bottom" className="max-h-[90dvh]">
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <Map className="h-5 w-5" />

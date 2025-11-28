@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { routeTree } from './routeTree.gen'
 import { queryClient } from './api/root'
 import { useAuthStore } from './store/auth'
+import { ReactionProvider } from './components/organisms/Reaction'
 
 // Initialize theme from localStorage
 const initTheme = () => {
@@ -75,7 +76,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
+        <ReactionProvider>
         <RouterProvider router={router} />
+        </ReactionProvider>
         <Toaster />
       </QueryClientProvider>
     </StrictMode>,

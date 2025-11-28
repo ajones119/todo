@@ -23,6 +23,7 @@ import { useThemeLabels } from '@/hooks/useThemeLabels';
 import { getSingularLabel } from '@/lib/theme-labels';
 import { Card, CardContent } from '../ui/8bit/card';
 import { getIconForCategory } from '@/lib/category-stats';
+import { useReaction } from './Reaction';
 
 // Task response type matching the API
 type TaskResponse = Task & {
@@ -282,6 +283,8 @@ export const TaskList = ({}: TaskListProps) => {
     )).toISOString();
   };
 
+  const { runNegativeReaction, runPositiveReaction } = useReaction();
+
   const handleToggleComplete = async (taskId: string, completed: boolean, e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation(); // Prevent triggering the task click
@@ -292,6 +295,11 @@ export const TaskList = ({}: TaskListProps) => {
       completed,
       date: completionDate,
     });
+    if (completed) {
+      runPositiveReaction();
+    } else {
+      runNegativeReaction();
+    }
   };
 
 

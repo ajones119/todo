@@ -108,7 +108,10 @@ function DrawerContent({
           side === "left" &&
             "border-r-4 data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 sm:max-w-sm",
           side === "bottom" &&
-            "border-t-4 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-[90vh] max-h-[90vh] w-full",
+            "border-t-4 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-[90dvh] max-h-[90dvh] w-full",
+          // Use dvh (dynamic viewport height) for better mobile keyboard handling
+          // Add min-height to ensure content is always accessible
+          side === "bottom" && "min-h-0",
           className,
           "retro"
         )}
@@ -139,7 +142,14 @@ function DrawerFooter({
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <ShadcnDrawerFooter className={cn("", className, "retro")} {...props}>
+    <ShadcnDrawerFooter 
+      className={cn(
+        "shrink-0", // Prevent footer from shrinking
+        className, 
+        "retro"
+      )} 
+      {...props}
+    >
       {children}
     </ShadcnDrawerFooter>
   );

@@ -10,10 +10,18 @@ const inputSchema = z.object({
 
 export const addNarration = createTool({
   id: "add-narration",
-  description: "Add a narration to the week",
+  description: "Save a NEW weekly narrative summary to the database. This creates a NEW entry for THIS week. The summary should describe NEW events happening THIS week, not repeat last week's events. You MUST call this tool to save your narrative.",
   inputSchema: inputSchema,
   outputSchema: z.object({
     success: z.boolean(),
+    record: z
+      .object({
+        id: z.number(),
+        summary: z.string(),
+        createdAt: z.string(),
+      })
+      .nullable(),
+    error: z.string().optional(),
   }),
   execute: async ({ context, runtimeContext }) => {
     const { summary, nextWeekPrompt, agentNotes } = context;
@@ -21,7 +29,7 @@ export const addNarration = createTool({
     const supabase = runtimeContext.get("supabase") as SupabaseClient;
 
     if (!supabase) {
-      return { success: false, error: "Supabase client not found in runtime context" };
+      return { success: false, record: null, error: "Supabase client not found in runtime context" };
     }
     
     const { data, error } = await supabase
@@ -30,12 +38,14 @@ export const addNarration = createTool({
         summary,
         nextWeekPrompt,
         agentNotes,
-      });
+      })
+      .select('id, summary, createdAt')
+      .single();
 
     if (error) {
-      return { success: false, error: error.message };
+      return { success: false, record: null, error: error.message };
     }
 
-    return { success: true };
+    return { success: true, record: data ?? null };
   },
 });

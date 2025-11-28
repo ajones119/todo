@@ -6,29 +6,33 @@ import { Button as BitButton } from '@/components/ui/8bit/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
-interface WeeklySummary {
+interface DailyStory {
   id: string
-  summary: string | null
-  nextWeekPrompt: string | null
   agentNotes: string | null
   createdAt: string
 }
 
-export function StorySoFar() {
+export function DailyStory() {
   const [offset, setOffset] = useState(0)
 
-  const { data: summary, isLoading, error } = useQuery<WeeklySummary | null>({
-    queryKey: ['weekly-summary', offset],
+  const { data: dailyStory, isLoading, error } = useQuery<DailyStory | null>({
+    queryKey: ['daily-story', offset],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        return null
+      }
+
       const { data, error } = await supabase
-        .from('To_do_Weekly_Summary')
-        .select('id, summary, nextWeekPrompt, agentNotes, createdAt')
+        .from('To_do_Character_Daily_Summary')
+        .select('id, agentNotes, createdAt')
+        .eq('userId', user.id)
         .order('createdAt', { ascending: false })
         .range(offset, offset)
         .maybeSingle()
 
       if (error) {
-        console.error('Error fetching weekly summary:', error)
+        console.error('Error fetching daily story:', error)
         throw error
       }
 
@@ -36,13 +40,19 @@ export function StorySoFar() {
     },
   })
 
-  // Check if there are more summaries (next)
+  // Check if there are more stories (next)
   const { data: hasNext } = useQuery<boolean>({
-    queryKey: ['weekly-summary-has-next', offset],
+    queryKey: ['daily-story-has-next', offset],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        return false
+      }
+
       const { data, error } = await supabase
-        .from('To_do_Weekly_Summary')
+        .from('To_do_Character_Daily_Summary')
         .select('id', { count: 'exact', head: true })
+        .eq('userId', user.id)
         .order('createdAt', { ascending: false })
         .range(offset + 1, offset + 1)
         .maybeSingle()
@@ -62,7 +72,7 @@ export function StorySoFar() {
   }
 
   const handleNext = () => {
-    if (hasNext) {
+    if (true) {
       setOffset(offset + 1)
     }
   }
@@ -70,7 +80,7 @@ export function StorySoFar() {
   if (isLoading) {
     return (
       <Card className="p-4 text-2xs">
-        <h2 className="text-lg retro mb-2">Story So Far</h2>
+        <h2 className="text-lg retro mb-2">Today's Adventure</h2>
         <p className="text-2xs text-muted-foreground">Loading...</p>
       </Card>
     )
@@ -79,17 +89,17 @@ export function StorySoFar() {
   if (error) {
     return (
       <Card className="p-4 text-2xs">
-        <h2 className="text-lg retro mb-2">Story So Far</h2>
-        <p className="text-2xs text-red-500">Error loading story</p>
+        <h2 className="text-lg retro mb-2">Today's Adventure</h2>
+        <p className="text-2xs text-red-500">Error loading daily story</p>
       </Card>
     )
   }
 
-  if (!summary || !summary.summary) {
+  if (!dailyStory || !dailyStory.agentNotes) {
     return (
       <Card className="p-4 text-2xs">
-        <h2 className="text-lg retro mb-2">Story So Far</h2>
-        <p className="text-2xs text-muted-foreground">No story available yet. Complete some tasks to generate the first chapter!</p>
+        <h2 className="text-lg retro mb-2">Today's Adventure</h2>
+        <p className="text-2xs text-muted-foreground">No daily adventure available yet. Complete some tasks to generate your first adventure!</p>
       </Card>
     )
   }
@@ -97,44 +107,36 @@ export function StorySoFar() {
   return (
     <Card className="p-4 text-2xs space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg retro">Story So Far</h2>
+        <h2 className="text-lg retro">Today's Adventure</h2>
         <div className="flex items-center gap-2 relative z-10">
           <BitButton
             variant="ghost"
             size="sm"
             onClick={handlePrevious}
-            disabled={offset === 0}
-            className="h-8 w-8 p-0 relative z-10 pointer-events-auto"
+            className="h-8 w-8 p-0 relative z-10"
             type="button"
           >
-            <ChevronLeft className="h-4 w-4 pointer-events-none" />
+            <ChevronLeft className="h-4 w-4" />
           </BitButton>
-          {summary.createdAt && (
+          {dailyStory.createdAt && (
             <span className="text-xs text-muted-foreground">
-              {formatUtcDate(summary.createdAt)}
+              {formatUtcDate(dailyStory.createdAt)}
             </span>
           )}
           <BitButton
             variant="ghost"
             size="sm"
             onClick={handleNext}
-            disabled={!hasNext}
-            className="h-8 w-8 p-0 relative z-10 pointer-events-auto"
+            className="h-8 w-8 p-0 relative z-10"
             type="button"
           >
-            <ChevronRight className="h-4 w-4 pointer-events-none" />
+            <ChevronRight className="h-4 w-4" />
           </BitButton>
         </div>
       </div>
       <div className="text-2xs whitespace-pre-wrap leading-relaxed">
-        {summary.summary}
+        {dailyStory.agentNotes}
       </div>
-      {summary.nextWeekPrompt && (
-        <div className="pt-3 border-t border-border">
-          <p className="text-xs font-semibold mb-1">Next Week:</p>
-          <p className="text-2xs text-muted-foreground">{summary.nextWeekPrompt}</p>
-        </div>
-      )}
     </Card>
   )
 }

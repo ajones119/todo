@@ -3,6 +3,7 @@ import { apiRequest } from './root';
 import { supabase } from './root';
 import type { HabitTemplate, HabitCompletion } from '@todo/types';
 import { toast } from 'sonner';
+import { useReaction } from '@/components/organisms/Reaction';
 
 // API response type - HabitTemplate with completion status
 type HabitResponse = HabitTemplate & {
@@ -144,6 +145,7 @@ export const useDeleteHabit = () => {
 // Increment/decrement habit mutation
 export const useIncrementHabit = () => {
   const queryClient = useQueryClient();
+  const { runNegativeReaction } = useReaction();
 
   return useMutation({
     mutationFn: async ({ id, type, date }: { id: string; type: 'positive' | 'negative'; date?: string }): Promise<HabitCompletion> => {
@@ -183,6 +185,10 @@ export const useIncrementHabit = () => {
             return habit;
           });
         });
+      }
+
+      if (type === 'negative') {
+        runNegativeReaction();
       }
 
       return { previousHabits };
